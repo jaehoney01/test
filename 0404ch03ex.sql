@@ -1,21 +1,55 @@
-select *from book;
-select *from orders;
-select *from customer;
-/*¹ÚÁö¼ºÀÌ ±¸¸ÅÇÑ µµ¼­ÀÇ ÃâÆÇ»ç ¼ö */
-select count(b.publisher)"ÃâÆÇ»ç ¼ö" from orders o,customer c,book b where c.custid=o.custid and c.name like '¹ÚÁö¼º' and b.bookid=o.bookid; 
-/*¹ÚÁö¼ºÀÌ ±¸¸ÅÇÑ µµ¼­ÀÇ ÀÌ¸§,°¡°Ý,Á¤°¡¿Í ÆÇ¸Å°¡°ÝÀÇ Â÷ÀÌ price-saleprice*/ 
-select b.bookname,b.price,o.saleprice,(b.price-o.saleprice)"Á¤°¡¿Í ÆÇ¸Å°¡ Â÷ÀÌ" from orders o,customer c,book b where c.custid=o.custid and c.name like '¹ÚÁö¼º' and b.bookid=o.bookid;
-/*¹ÚÁö¼ºÀÌ ±¸¸ÅÇÏÁö ¾ÊÀº µµ¼­ÀÇ ÀÌ¸§*/
-select Distinct b.bookname from orders o,customer c,book b where not c.custid=o.custid and c.name like '¹ÚÁö¼º' and b.bookid=o.bookid;/*ÁÖ¹®ÇÏÁö ¾ÊÀº °í°´ÀÇ ÀÌ¸§*/
-/*ÁÖ¹®ÇÏÁö ¾ÊÀº °í°´ÀÇ ÀÌ¸§*/
-select c.name from customer c where c.custid not in (select Distinct o.custid from orders o);
-/*ÁÖ¹® ±Ý¾×ÀÇ ÃÑ¾×°ú ÁÖ¹®ÀÇ Æò±Õ ±Ý¾×*/
-select sum(saleprice)"ÃÑÇÕ",avg(saleprice)"Æò±Õ" from orders;
-/*°í°´ÀÇ ÀÌ¸§°ú °í°´º° ±¸¸Å¾×*/
-select name,sum(saleprice) from customer,orders where orders.custid=customer.custid group by name;
-/*°í°´ÀÇ ÀÌ¸§°ú °í°´ÀÌ ±¸¸ÅÇÑ µµ¼­¸ñ·Ï*/
-select name,bookname from book,orders,customer where book.bookid=orders.bookid and orders.custid=customer.custid;
-/*µµ¼­ÀÇ °¡°Ý°ú ÆÇ¸Å°¡°ÝÀÇ Â÷ÀÌ°¡ °¡Àå ¸¹Àº ÁÖ¹®*/
-select * from book,orders where book.bookid=orders.bookid and price-saleprice = (select max(price-saleprice) from book,orders where book.bookid = orders.bookid);
-/*µµ¼­ÀÇ ÆÇ¸Å¾× Æò±Õº¸´Ù ÀÚ½ÅÀÇ ±¸¸Å¾× Æò±ÕÀÌ ´õ ³ôÀº °í°´ÀÇ ÀÌ¸§ */
-select name,avg(saleprice) from customer,orders where customer.custid=orders.custid group by name having avg(saleprice)>(select avg(saleprice) from orders); 
+
+/*ë°•ì§€ì„±ì´ êµ¬ë§¤í•œ ë„ì„œì˜ ì¶œíŒì‚¬ ìˆ˜ */
+SELECT COUNT(*) PUBLISHER
+FROM BOOK, ORDERS
+WHERE book.BOOKID = orders.BOOKID
+AND ORDERS.CUSTID = 1;
+/*ë°•ì§€ì„±ì´ êµ¬ë§¤í•œ ë„ì„œì˜ ì´ë¦„,ê°€ê²©,ì •ê°€ì™€ íŒë§¤ê°€ê²©ì˜ ì°¨ì´ price-saleprice*/ 
+SELECT book.BOOKNAME, orders.SALEPRICE, book.PRICE-orders.SALEPRICE
+FROM BOOK, ORDERS
+WHERE book.BOOKID = orders.BOOKID
+AND ORDERS.CUSTID = 1;
+/*ë°•ì§€ì„±ì´ êµ¬ë§¤í•˜ì§€ ì•Šì€ ë„ì„œì˜ ì´ë¦„*/
+SELECT DISTINCT book.BOOKNAME
+FROM BOOK, ORDERS
+WHERE book.BOOKID = orders.BOOKID
+AND ORDERS.CUSTID NOT IN (1);
+/*ì£¼ë¬¸í•˜ì§€ ì•Šì€ ê³ ê°ì˜ ì´ë¦„*/
+SELECT customer.NAME
+FROM CUSTOMER
+WHERE custid NOT IN (
+SELECT DISTINCT orders.custid
+FROM ORDERS
+);
+/*ì£¼ë¬¸ ê¸ˆì•¡ì˜ ì´ì•¡ê³¼ ì£¼ë¬¸ì˜ í‰ê·  ê¸ˆì•¡*/
+SELECT sum(orders.SALEPRICE), avg(orders.SALEPRICE)
+FROM ORDERS;
+/*ê³ ê°ì˜ ì´ë¦„ê³¼ ê³ ê°ë³„ êµ¬ë§¤ì•¡*/
+SELECT DISTINCT customer.name, orders.SALEPRICE
+FROM CUSTOMER, ORDERS
+WHERE CUSTOMER.CUSTID = ORDERS.CUSTID
+ORDER BY NAME;
+/*ê³ ê°ì˜ ì´ë¦„ê³¼ ê³ ê°ì´ êµ¬ë§¤í•œ ë„ì„œëª©ë¡*/
+SELECT DISTINCT customer.name, book.BOOKNAME
+FROM CUSTOMER, book, ORDERS
+WHERE CUSTOMER.CUSTID = ORDERS.CUSTID
+AND book.BOOKID = orders.BOOKID
+ORDER BY NAME;
+/*ë„ì„œì˜ ê°€ê²©ê³¼ íŒë§¤ê°€ê²©ì˜ ì°¨ì´ê°€ ê°€ìž¥ ë§Žì€ ì£¼ë¬¸*/
+SELECT *
+FROM book, ORDERS
+WHERE book.BOOKID = orders.BOOKID
+AND book.PRICE-orders.SALEPRICE = (
+SELECT max(book.PRICE-orders.SALEPRICE)
+FROM book, ORDERS
+WHERE book.BOOKID = orders.BOOKID
+);
+/*ë„ì„œì˜ íŒë§¤ì•¡ í‰ê· ë³´ë‹¤ ìžì‹ ì˜ êµ¬ë§¤ì•¡ í‰ê· ì´ ë” ë†’ì€ ê³ ê°ì˜ ì´ë¦„ */
+SELECT customer.NAME
+FROM CUSTOMER, ORDERS
+WHERE CUSTOMER.CUSTID = ORDERS.CUSTID
+GROUP BY customer.NAME
+HAVING avg(orders.SALEPRICE) > (
+SELECT avg(orders.SALEPRICE)
+FROM ORDERS
+);
