@@ -53,3 +53,47 @@ HAVING avg(orders.SALEPRICE) > (
 SELECT avg(orders.SALEPRICE)
 FROM ORDERS
 );
+
+
+
+/*ch03 ex1-5*/
+select count(distinct publisher)
+from customer, orders, book
+where customer.custid=orders.custid and orders.bookid=book.bookid and customer.name like '박지성';
+/*ch03 ex1-6*/
+select bookname,price,price-saleprice
+from customer, orders, book
+where customer.custid=orders.custid and orders.bookid=book.bookid and customer.name like '박지성';
+/*ch03 ex1-7*/
+select bookname
+from book
+where not EXISTS (select bookname,price,price-saleprice
+from customer, orders
+where customer.custid=orders.custid and orders.bookid=book.bookid and customer.name like '박지성');
+/*ch03 ex2-8*/
+select name
+from customer
+where name not in (select name from customer, orders where customer.custid=orders.custid);
+/*ch03 ex2-9*/
+select sum(saleprice),avg(saleprice)
+from orders;
+/*ch03 ex2-10*/
+select name, sum(saleprice) as total
+from customer, orders
+where customer.custid=orders.custid
+group by name;
+/*ch03 ex2-11*/
+select name, book.bookname
+from customer, orders, book
+where customer.custid=orders.custid and orders.bookid=book.bookid;
+/*ch03 ex2-12*/
+select *
+from book, orders
+where book.bookid=orders.bookid and price-saleprice=(select max(price-saleprice) from book, orders where book.bookid=orders.bookid);
+/*ch03 ex2-13*/
+select name, avg(saleprice)
+from customer, orders
+where customer.custid=orders.custid
+group by name 
+having avg(saleprice)>(select avg(saleprice) from orders);
+
