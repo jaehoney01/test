@@ -56,20 +56,7 @@ FROM ORDERS
 
 
 
-/*ch03 ex1-5*/
-select count(distinct publisher)
-from customer, orders, book
-where customer.custid=orders.custid and orders.bookid=book.bookid and customer.name like '박지성';
-/*ch03 ex1-6*/
-select bookname,price,price-saleprice
-from customer, orders, book
-where customer.custid=orders.custid and orders.bookid=book.bookid and customer.name like '박지성';
-/*ch03 ex1-7*/
-select bookname
-from book
-where not EXISTS (select bookname,price,price-saleprice
-from customer, orders
-where customer.custid=orders.custid and orders.bookid=book.bookid and customer.name like '박지성');
+
 /*ch03 ex2-8*/
 select name
 from customer
